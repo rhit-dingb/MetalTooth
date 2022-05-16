@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import type {Node} from 'react';
 import {
   SafeAreaView,
@@ -16,6 +16,7 @@ import {
   Text,
   useColorScheme,
   View,
+  Button,
 } from 'react-native';
 
 import {
@@ -25,6 +26,22 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+var Sound = require('react-native-sound');
+Sound.setCategory('Playback');
+import metal from './Numb.mp3';
+import {clearWarnings} from 'react-native/Libraries/LogBox/Data/LogBoxData';
+import {useFocusEffect} from '@react-navigation/native';
+
+console.log('playSound Called');
+var metalSound = new Sound(metal, error => {
+  if (error) {
+    console.log('failed to load the sound', error);
+    return;
+  }
+  // if loaded successfully
+  console.log('Load sound success');
+  //console.log('duration in seconds: ' + metalSound.getDuration() + 'number of channels: ' + metalSound.getNumberOfChannels());
+});
 
 const Section = ({children, title}): Node => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -54,43 +71,56 @@ const Section = ({children, title}): Node => {
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  useEffect(() => {
+    metalSound.setVolume(1);
+    return () => {
+      metalSound.release();
+    };
+  }, []);
+  const playPause = () => {
+    metalSound.play(success => {
+      if (success) {
+        console.log('successfully finished playing');
+      } else {
+        console.log('playback failed due to audio decoding errors');
+      }
+    });
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.heading1}>MetalTooth</Text>
+      <SafeAreaView style={styles.buttons}>
+        <Button
+          title="Connect to BlueTooth Device"
+          onPress={() => {
+            //TODO: connect to local speakers
+          }}
+        />
+        <Button title="Connect with Nearby Users" />
+        <Button
+          style={styles.playMusicButton}
+          title="GO METAL"
+          onPress={playPause}
+        />
+      </SafeAreaView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  playMusicButton: {
+    title: 'bold', //TODO: this is NOT WORKING, FIX
+  },
+  buttons: {
+    marginTop: 30,
+  },
+  heading1: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginTop: 20,
+    paddingHorizontal: 24,
+  },
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
