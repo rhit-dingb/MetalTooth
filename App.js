@@ -32,6 +32,15 @@ import metal from './Numb.mp3';
 import {clearWarnings} from 'react-native/Libraries/LogBox/Data/LogBoxData';
 import {useFocusEffect} from '@react-navigation/native';
 import MusicControl from 'react-native-music-control';
+// Basic Controls
+MusicControl.enableControl('play', true);
+MusicControl.enableControl('pause', true);
+MusicControl.enableControl('stop', false);
+MusicControl.enableControl('nextTrack', true);
+MusicControl.enableControl('previousTrack', false);
+
+// Changing track position on lockscreen
+MusicControl.enableControl('changePlaybackPosition', true);
 
 console.log('playSound Called');
 var metalSound = new Sound(metal, error => {
@@ -43,6 +52,20 @@ var metalSound = new Sound(metal, error => {
   console.log('Load sound success');
   //console.log('duration in seconds: ' + metalSound.getDuration() + 'number of channels: ' + metalSound.getNumberOfChannels());
 });
+
+const controlMusic = () => {
+  console.log('now playing music throught music control');
+  MusicControl.setNowPlaying({
+    title: 'Numb',
+    artwork:
+      'https://upload.wikimedia.org/wikipedia/en/b/b9/Linkin_Park_-_Numb_CD_cover.jpg?20080119230823', // URL or RN's image require()
+    artist: 'Linkin Park',
+    album: 'Meteora',
+    genre: 'Rock, Metal',
+    duration: 186, // (Seconds)
+    isLiveStream: false, // iOS Only (Boolean), Show or hide Live Indicator instead of seekbar on lock screen for live streams. Default value is false.
+  });
+};
 
 const Section = ({children, title}): Node => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -87,7 +110,9 @@ const App: () => Node = () => {
       }
     });
   };
-
+  const controlMusicPlay = () => {};
+  const controlMusicPause = () => {};
+  const controlMusicDebug = () => {};
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.heading1}>MetalTooth</Text>
@@ -103,6 +128,26 @@ const App: () => Node = () => {
           style={styles.playMusicButton}
           title="GO METAL"
           onPress={playPause}
+        />
+        <Button
+          style={styles.playMusicButton}
+          title="GO METAL MUSIC CONTROL"
+          onPress={controlMusic}
+        />
+        <Button
+          style={styles.playMusicButton}
+          title="Play"
+          onPress={controlMusicPlay}
+        />
+        <Button
+          style={styles.playMusicButton}
+          title="Pause"
+          onPress={controlMusicPause}
+        />
+        <Button
+          style={styles.playMusicButton}
+          title="SwithTo100Sec-DEBUG"
+          onPress={controlMusicDebug}
         />
       </SafeAreaView>
     </SafeAreaView>
