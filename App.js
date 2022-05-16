@@ -31,6 +31,7 @@ Sound.setCategory('Playback');
 import metal from './Numb.mp3';
 import {clearWarnings} from 'react-native/Libraries/LogBox/Data/LogBoxData';
 import {useFocusEffect} from '@react-navigation/native';
+import MusicControl from 'react-native-music-control';
 
 console.log('playSound Called');
 var metalSound = new Sound(metal, error => {
