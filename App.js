@@ -26,6 +26,61 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+
+import TrackPlayer from 'react-native-track-player';
+
+//------TCP SOCKET
+import TcpSocket from 'react-native-tcp-socket';
+
+const options = {port: 12345, host: '15.10.8.23'};
+// Create socket
+const client = () => {
+  TcpSocket.createConnection(options, () => {
+    // Write on the socket
+    client.write('Hello server!');
+
+    // Close socket
+    client.destroy();
+  });
+
+  client.on('data', function (data) {
+    console.log('message was received', data);
+  });
+
+  client.on('error', function (error) {
+    console.log(error);
+  });
+
+  client.on('close', function () {
+    console.log('Connection closed!');
+  });
+};
+
+const server = () => {
+  TcpSocket.createServer(function (socket) {
+    socket.on('data', data => {
+      socket.write('Echo server ' + data);
+    });
+
+    socket.on('error', error => {
+      console.log('An error ocurred with client socket ', error);
+    });
+
+    socket.on('close', error => {
+      console.log('Closed connection with ', socket.address());
+    });
+  }).listen({port: 12345, host: '15.10.8.23'});
+
+  server.on('error', error => {
+    console.log('An error ocurred with the server', error);
+  });
+
+  server.on('close', () => {
+    console.log('Server closed connection');
+  });
+};
+//------TCP SOCKET
+
 var Sound = require('react-native-sound');
 Sound.setCategory('Playback');
 import metal from './Numb.mp3';
@@ -110,8 +165,20 @@ const App: () => Node = () => {
       }
     });
   };
-  const controlMusicPlay = () => {};
-  const controlMusicPause = () => {};
+  const controlMusicPlay = () => {
+    console.log('play button pressed');
+    MusicControl.updatePlayback({
+      state: MusicControl.STATE_PLAYING,
+      elapsedTime: 135,
+    });
+  };
+  const controlMusicPause = () => {
+    console.log('pause button pressed');
+    MusicControl.updatePlayback({
+      state: MusicControl.STATE_PAUSED,
+      elapsedTime: 135,
+    });
+  };
   const controlMusicDebug = () => {};
   return (
     <SafeAreaView style={styles.container}>
@@ -147,6 +214,16 @@ const App: () => Node = () => {
         <Button
           style={styles.playMusicButton}
           title="SwithTo100Sec-DEBUG"
+          onPress={controlMusicDebug}
+        />
+        <Button
+          style={styles.playMusicButton}
+          title="Host Party"
+          onPress={controlMusicDebug}
+        />
+        <Button
+          style={styles.playMusicButton}
+          title="Join Party"
           onPress={controlMusicDebug}
         />
       </SafeAreaView>
