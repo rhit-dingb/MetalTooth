@@ -7,6 +7,8 @@
  */
 
 import React, {useEffect} from 'react';
+import publicIP from 'react-native-public-ip';
+import {NetworkInfo} from 'react-native-network-info';
 import type {Node} from 'react';
 import {
   SafeAreaView,
@@ -30,55 +32,84 @@ import {
 import TrackPlayer from 'react-native-track-player';
 
 //------TCP SOCKET
-import TcpSocket from 'react-native-tcp-socket';
+const {init, server, client} = require('./tcp');
 
-const options = {port: 12345, host: '15.10.8.23'};
+const options = {
+  port: 12345,
+  host: 'ipAddress',
+  reuseAddress: true,
+};
+
+// Get Local IP
+// NetworkInfo.getIPAddress().then(ipAddress => {
+//   console.log(ipAddress);
+//   options = {
+//     port: 12345,
+//     host: ipAddress,
+//     reuseAddress: true,
+//   };
+// });
+
+// Get IPv4 IP (priority: WiFi first, cellular second)
+NetworkInfo.getIPV4Address().then(ipv4Address => {
+  console.log(ipv4Address);
+  options = {
+    port: 12345,
+    host: ipv4Address,
+    reuseAddress: true,
+  };
+});
+
 // Create socket
-const client = () => {
-  TcpSocket.createConnection(options, () => {
-    // Write on the socket
-    client.write('Hello server!');
+// const client = () => {
+//   TcpSocket.createConnection(options, () => {
+//     // Write on the socket
+//     console.log('client opened on ' + JSON.stringify(client.address()));
 
-    // Close socket
-    client.destroy();
-  });
+//     // Close socket
+//     //client.destroy();
+//   });
 
-  client.on('data', function (data) {
-    console.log('message was received', data);
-  });
+//   client.on('data', function (data) {
+//     console.log('message was received', data);
+//   });
 
-  client.on('error', function (error) {
-    console.log(error);
-  });
+//   client.on('error', function (error) {
+//     console.log(error);
+//   });
 
-  client.on('close', function () {
-    console.log('Connection closed!');
-  });
-};
+//   client.on('close', function () {
+//     console.log('Connection closed!');
+//   });
+// };
 
-const server = () => {
-  TcpSocket.createServer(function (socket) {
-    socket.on('data', data => {
-      socket.write('Echo server ' + data);
-    });
+// const server = () => {
+//   TcpSocket.createServer(function (socket) {
+//     console.log('connected on ' + JSON.stringify(socket.address()));
 
-    socket.on('error', error => {
-      console.log('An error ocurred with client socket ', error);
-    });
+//     socket.on('data', data => {
+//       socket.write('Echo server ' + data);
+//     });
 
-    socket.on('close', error => {
-      console.log('Closed connection with ', socket.address());
-    });
-  }).listen({port: 12345, host: '15.10.8.23'});
+//     socket.on('error', error => {
+//       console.log('An error ocurred with client socket ', error);
+//     });
 
-  server.on('error', error => {
-    console.log('An error ocurred with the server', error);
-  });
+//     socket.on('close', error => {
+//       console.log('Closed connection with ', socket.address());
+//     });
+//   }).listen({port: 12345, host: '15.10.8.23'}, () => {
+//     console.log('server opened on ' + JSON.stringify(server.address()));
+//   });
 
-  server.on('close', () => {
-    console.log('Server closed connection');
-  });
-};
+//   server.on('error', error => {
+//     console.log('An error ocurred with the server', error);
+//   });
+
+//   server.on('close', () => {
+//     console.log('Server closed connection');
+//   });
+// };
 //------TCP SOCKET
 
 var Sound = require('react-native-sound');
@@ -179,7 +210,31 @@ const App: () => Node = () => {
       elapsedTime: 135,
     });
   };
+
   const controlMusicDebug = () => {};
+  const controlMusicHost = () => {
+    console.log('host button pressed');
+    console.log(options.host);
+    server.listen(options, () => {
+      console.log('server opened on ' + JSON.stringify(server.address()));
+    });
+  };
+
+  const controlMusicJoin = () => {
+    console.log('join button pressed');
+    client.connect(
+      {
+        port: 12345,
+        host: '192.168.0.25',
+        localAddress: '192.168.0.28',
+        reuseAddress: true,
+      },
+      () => {
+        console.log('client on ' + JSON.stringify(client.address()));
+      },
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.heading1}>MetalTooth</Text>
@@ -219,12 +274,12 @@ const App: () => Node = () => {
         <Button
           style={styles.playMusicButton}
           title="Host Party"
-          onPress={controlMusicDebug}
+          onPress={controlMusicHost}
         />
         <Button
           style={styles.playMusicButton}
           title="Join Party"
-          onPress={controlMusicDebug}
+          onPress={controlMusicJoin}
         />
       </SafeAreaView>
     </SafeAreaView>
