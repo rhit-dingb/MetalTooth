@@ -6,8 +6,7 @@
  * @flow strict-local
  */
 
-import React, {useEffect} from 'react';
-import publicIP from 'react-native-public-ip';
+import React, {useEffect, Component} from 'react';
 import {NetworkInfo} from 'react-native-network-info';
 import type {Node} from 'react';
 import {
@@ -19,6 +18,7 @@ import {
   useColorScheme,
   View,
   Button,
+  TextInput,
 } from 'react-native';
 
 import {
@@ -51,14 +51,14 @@ const options = {
 // });
 
 // Get IPv4 IP (priority: WiFi first, cellular second)
-NetworkInfo.getIPV4Address().then(ipv4Address => {
-  console.log(ipv4Address);
-  options = {
-    port: 12345,
-    host: ipv4Address,
-    reuseAddress: true,
-  };
-});
+// NetworkInfo.getIPV4Address().then(ipv4Address => {
+//   console.log(ipv4Address);
+//   options = {
+//     port: 12345,
+//     host: ipv4Address,
+//     reuseAddress: true,
+//   };
+// });
 
 // Create socket
 // const client = () => {
@@ -179,6 +179,28 @@ const Section = ({children, title}): Node => {
   );
 };
 
+// class TextIPBox extends Component {
+//   constructor(props) {
+//     super(props);
+//     this.state = {text: ''};
+//   }
+
+//   render() {
+//     return (
+//       <SafeAreaView>
+//         <Text>Host Network IP: </Text>
+//         <TextInput
+//           style={styles.input}
+//           onChangeText={text => this.setState({text})}
+//           placeholder="192.168.2.0"
+//           keyboardType="numeric"
+//         />
+//       </SafeAreaView>
+//     );
+//   }
+// }
+var hostIP = '';
+var localIP = '';
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
   useEffect(() => {
@@ -214,10 +236,18 @@ const App: () => Node = () => {
   const controlMusicDebug = () => {};
   const controlMusicHost = () => {
     console.log('host button pressed');
-    console.log(options.host);
-    server.listen(options, () => {
-      console.log('server opened on ' + JSON.stringify(server.address()));
-    });
+    //console.log('host IP from TextBox is: ' + hostIP);
+    //console.log(options.host);
+    server.listen(
+      {
+        port: 12345,
+        host: localIP,
+        reuseAddress: true,
+      },
+      () => {
+        console.log('server opened on ' + JSON.stringify(server.address()));
+      },
+    );
   };
 
   const controlMusicJoin = () => {
@@ -225,8 +255,8 @@ const App: () => Node = () => {
     client.connect(
       {
         port: 12345,
-        host: '192.168.0.25',
-        localAddress: '192.168.0.28',
+        host: hostIP,
+        localAddress: localIP,
         reuseAddress: true,
       },
       () => {
@@ -271,11 +301,27 @@ const App: () => Node = () => {
           title="SwithTo100Sec-DEBUG"
           onPress={controlMusicDebug}
         />
-        <Button
-          style={styles.playMusicButton}
-          title="Host Party"
-          onPress={controlMusicHost}
+        <SafeAreaView>
+          <Button
+            style={styles.playMusicButton}
+            title="Host Party"
+            onPress={controlMusicHost}
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={text => (localIP = text)}
+            placeholder="Local IP"
+            keyboardType="numeric"
+          />
+        </SafeAreaView>
+
+        <TextInput
+          style={styles.input}
+          onChangeText={text => (hostIP = text)}
+          placeholder="Host IP"
+          keyboardType="numeric"
         />
+
         <Button
           style={styles.playMusicButton}
           title="Join Party"
@@ -287,6 +333,9 @@ const App: () => Node = () => {
 };
 
 const styles = StyleSheet.create({
+  input: {
+    fontSize: 20,
+  },
   playMusicButton: {
     title: 'bold', //TODO: this is NOT WORKING, FIX
   },

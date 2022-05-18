@@ -288,6 +288,8 @@ PODS:
     - React-Core
   - react-native-music-control (1.4.1):
     - React-Core
+  - react-native-network-info (5.2.1):
+    - React
   - react-native-tcp-socket (5.6.2):
     - CocoaAsyncSocket
     - React-Core
@@ -415,6 +417,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
   - react-native-music-control (from `../node_modules/react-native-music-control`)
+  - react-native-network-info (from `../node_modules/react-native-network-info`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-track-player (from `../node_modules/react-native-track-player`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -493,6 +496,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ble-plx"
   react-native-music-control:
     :path: "../node_modules/react-native-music-control"
+  react-native-network-info:
+    :path: "../node_modules/react-native-network-info"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
   react-native-track-player:
@@ -561,6 +566,7 @@ SPEC CHECKSUMS:
   React-logger: f79dd3cc0f9b44f5611c6c7862badd891a862cf8
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
   react-native-music-control: 3fc719c179a6562e18af1ac6e30ba9e33b397a31
+  react-native-network-info: d1290ffc0bd0709e11436f5b8d7f605dcc5c4530
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-track-player: c4147afddd29de936caa06561f78a32d6502eb12
   React-perflogger: 30ab8d6db10e175626069e742eead3ebe8f24fd5
