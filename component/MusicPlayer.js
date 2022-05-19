@@ -75,69 +75,67 @@ const MusicPlayer = () => {
   };
 
   return (
-    <SafeAreaView>
-      <View style={styles.mainContainer}>
-        <FlatList
-          data={songs}
-          renderItem={renderSongs}
-          keyExtractor={item => item.id}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          scrollEventThrottle={16}
+    <View style={styles.mainContainer}>
+      <FlatList
+        data={songs}
+        renderItem={renderSongs}
+        keyExtractor={item => item.id}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+      />
+      <Text style={styles.title}>Numb</Text>
+      <Text style={styles.artist}>Linken Park</Text>
+      <View>
+        <Slider
+          style={styles.progressContainer}
+          value={10}
+          minimumValue={0}
+          maximumValue={100}
+          thumbTintColor="black"
+          minimumTrackTintColor="black"
+          onSlidingComplete={() => {}}
         />
-        <Text style={styles.title}>Numb</Text>
-        <Text style={styles.artist}>Linken Park</Text>
-        <View>
-          <Slider
-            style={styles.progressContainer}
-            value={10}
-            minimumValue={0}
-            maximumValue={100}
-            thumbTintColor="black"
-            minimumTrackTintColor="black"
-            onSlidingComplete={() => {}}
-          />
-        </View>
-        <View style={styles.progressLabelContainer}>
-          <Text style={styles.progressLabelTxt}>0:00</Text>
-          <Text style={styles.progressLabelTxt}>3:06</Text>
-        </View>
-
-        <View style={styles.musicControlls}>
-          <TouchableOpacity onPress={() => {}}>
-            <Ionicons
-              name="play-skip-back-outline"
-              size={35}
-              color="black"
-              style={{marginTop: 20}}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              togglePlayback(playbackState);
-            }}>
-            <Ionicons
-              name={
-                playbackState === State.Playing
-                  ? 'ios-pause-circle'
-                  : 'ios-play-circle'
-              }
-              size={75}
-              color="black"
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
-            <Ionicons
-              name="play-skip-forward-outline"
-              size={35}
-              color="black"
-              style={{marginTop: 20}}
-            />
-          </TouchableOpacity>
-        </View>
       </View>
-    </SafeAreaView>
+      <View style={styles.progressLabelContainer}>
+        <Text style={styles.progressLabelTxt}>0:00</Text>
+        <Text style={styles.progressLabelTxt}>3:06</Text>
+      </View>
+
+      <View style={styles.musicControlls}>
+        <TouchableOpacity onPress={() => {}}>
+          <Ionicons
+            name="play-skip-back-outline"
+            size={35}
+            color="black"
+            style={{marginTop: 20}}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            togglePlayback(playbackState);
+          }}>
+          <Ionicons
+            name={
+              playbackState === State.Playing
+                ? 'ios-pause-circle'
+                : 'ios-play-circle'
+            }
+            size={75}
+            color="black"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => {}}>
+          <Ionicons
+            name="play-skip-forward-outline"
+            size={35}
+            color="black"
+            style={{marginTop: 20}}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
@@ -173,6 +171,7 @@ const styles = StyleSheet.create({
     width: '60%',
     justifyContent: 'space-between',
     marginTop: 5,
+    marginLeft: 65,
   },
   artworkWrapper: {
     width: 300,

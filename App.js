@@ -29,7 +29,6 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 import MusicPlayer from './component/MusicPlayer';
-import TrackPlayer from 'react-native-track-player';
 
 //------TCP SOCKET
 const {init, server, client} = require('./tcp');
@@ -267,74 +266,53 @@ const App: () => Node = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.heading1}>MetalTooth</Text>
-      <MusicPlayer />
-
-      {/* <SafeAreaView style={styles.buttons}>
-        <Button
-          title="Connect to BlueTooth Device"
-          onPress={() => {
-            //TODO: connect to local speakers
-          }}
-        />
-        <Button title="Connect with Nearby Users" />
-        <Button
-          style={styles.playMusicButton}
-          title="GO METAL"
-          onPress={playPause}
-        />
-        <Button
-          style={styles.playMusicButton}
-          title="GO METAL MUSIC CONTROL"
-          onPress={controlMusic}
-        />
-        <Button
-          style={styles.playMusicButton}
-          title="Play"
-          onPress={controlMusicPlay}
-        />
-        <Button
-          style={styles.playMusicButton}
-          title="Pause"
-          onPress={controlMusicPause}
-        />
-        <Button
+      {/* <Text style={styles.heading1}>MetalTooth</Text> */}
+      <View style={styles.tcpContainer1}>
+        {/* <Button
           style={styles.playMusicButton}
           title="SwithTo100Sec-DEBUG"
           onPress={controlMusicDebug}
+        /> */}
+        <Button
+          style={styles.playMusicButton}
+          title="Host Party"
+          onPress={controlMusicHost}
         />
-        <SafeAreaView>
-          <Button
-            style={styles.playMusicButton}
-            title="Host Party"
-            onPress={controlMusicHost}
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={text => (localIP = text)}
-            placeholder="Local IP"
-            keyboardType="numeric"
-          />
-        </SafeAreaView>
-
+        <TextInput
+          style={styles.input}
+          onChangeText={text => (localIP = text)}
+          placeholder="Local IP"
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={styles.tcpContainer}>
         <TextInput
           style={styles.input}
           onChangeText={text => (hostIP = text)}
           placeholder="Host IP"
           keyboardType="numeric"
         />
-
         <Button
           style={styles.playMusicButton}
           title="Join Party"
           onPress={controlMusicJoin}
         />
-      </SafeAreaView> */}
+      </View>
+      <MusicPlayer />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  tcpContainer1: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 45,
+  },
+  tcpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -345,9 +323,6 @@ const styles = StyleSheet.create({
   },
   playMusicButton: {
     title: 'bold', //TODO: this is NOT WORKING, FIX
-  },
-  buttons: {
-    marginTop: 30,
   },
   heading1: {
     fontSize: 30,
