@@ -290,6 +290,8 @@ PODS:
     - React-Core
   - react-native-network-info (5.2.1):
     - React
+  - react-native-slider (4.2.2):
+    - React-Core
   - react-native-tcp-socket (5.6.2):
     - CocoaAsyncSocket
     - React-Core
@@ -366,6 +368,8 @@ PODS:
     - RNSound/Core (= 0.11.2)
   - RNSound/Core (0.11.2):
     - React-Core
+  - RNVectorIcons (9.1.0):
+    - React-Core
   - SocketRocket (0.6.0)
   - SwiftAudioEx (0.14.7)
   - Yoga (1.14.0)
@@ -418,6 +422,7 @@ DEPENDENCIES:
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
   - react-native-music-control (from `../node_modules/react-native-music-control`)
   - react-native-network-info (from `../node_modules/react-native-network-info`)
+  - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-track-player (from `../node_modules/react-native-track-player`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -433,6 +438,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RNSound (from `../node_modules/react-native-sound`)
+  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -498,6 +504,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-music-control"
   react-native-network-info:
     :path: "../node_modules/react-native-network-info"
+  react-native-slider:
+    :path: "../node_modules/@react-native-community/slider"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
   react-native-track-player:
@@ -528,6 +536,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNSound:
     :path: "../node_modules/react-native-sound"
+  RNVectorIcons:
+    :path: "../node_modules/react-native-vector-icons"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -567,6 +577,7 @@ SPEC CHECKSUMS:
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
   react-native-music-control: 3fc719c179a6562e18af1ac6e30ba9e33b397a31
   react-native-network-info: d1290ffc0bd0709e11436f5b8d7f605dcc5c4530
+  react-native-slider: 2f25c919f1dc309b90e2cc8346b8042ecec2102f
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-track-player: c4147afddd29de936caa06561f78a32d6502eb12
   React-perflogger: 30ab8d6db10e175626069e742eead3ebe8f24fd5
@@ -582,6 +593,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 7285b499d0339104b2813a1f58ad1ada4adbd6c0
   ReactCommon: bf2888a826ceedf54b99ad1b6182d1bc4a8a3984
   RNSound: 6c156f925295bdc83e8e422e7d8b38d33bc71852
+  RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   SwiftAudioEx: 3a4024e48f3b3e45dac6bf2668d7adbe7b83f50e
   Yoga: 17cd9a50243093b547c1e539c749928dd68152da
