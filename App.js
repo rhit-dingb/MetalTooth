@@ -28,7 +28,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-
+import MusicPlayer from './component/MusicPlayer';
 import TrackPlayer from 'react-native-track-player';
 
 //------TCP SOCKET
@@ -268,7 +268,9 @@ const App: () => Node = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.heading1}>MetalTooth</Text>
-      <SafeAreaView style={styles.buttons}>
+      <MusicPlayer />
+
+      {/* <SafeAreaView style={styles.buttons}>
         <Button
           title="Connect to BlueTooth Device"
           onPress={() => {
@@ -327,12 +329,17 @@ const App: () => Node = () => {
           title="Join Party"
           onPress={controlMusicJoin}
         />
-      </SafeAreaView>
+      </SafeAreaView> */}
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   input: {
     fontSize: 20,
   },
