@@ -53,6 +53,7 @@ const togglePlayback = async playbackState => {
 
 const MusicPlayer = () => {
   const playbackState = usePlaybackState();
+  const progress = useProgress();
   useEffect(() => {
     setupTrack();
   });
@@ -90,17 +91,25 @@ const MusicPlayer = () => {
       <View>
         <Slider
           style={styles.progressContainer}
-          value={10}
+          value={progress.position}
           minimumValue={0}
-          maximumValue={100}
+          maximumValue={progress.duration}
           thumbTintColor="black"
           minimumTrackTintColor="black"
-          onSlidingComplete={() => {}}
+          onSlidingComplete={async value => {
+            await TrackPlayer.seekTo(value);
+          }}
         />
       </View>
       <View style={styles.progressLabelContainer}>
-        <Text style={styles.progressLabelTxt}>0:00</Text>
-        <Text style={styles.progressLabelTxt}>3:06</Text>
+        <Text style={styles.progressLabelTxt}>
+          {new Date(progress.position * 1000).toISOString().substr(14, 5)}
+        </Text>
+        <Text style={styles.progressLabelTxt}>
+          {new Date((progress.duration - progress.position) * 1000)
+            .toISOString()
+            .substr(14, 5)}
+        </Text>
       </View>
 
       <View style={styles.musicControlls}>
