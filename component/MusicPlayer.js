@@ -12,10 +12,50 @@ import {
 import Slider from '@react-native-community/slider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import songs from '../model/data';
+import TrackPlayer, {
+  Capability,
+  Event,
+  RepeatMode,
+  State,
+  usePlaybackState,
+  useProgress,
+  useTrackPlayerEvents,
+} from 'react-native-track-player';
+import {clearWarnings} from 'react-native/Libraries/LogBox/Data/LogBoxData';
 
 const {width, height} = Dimensions.get('window');
 
+async function setupTrack() {
+  await TrackPlayer.setupPlayer();
+  //await TrackPlayer.add(songs);
+  var track = {
+    title: 'Numb',
+    artist: 'Linken Park',
+    artwork: require('../assets/artwork/numb.jpeg'),
+    id: '1',
+    url: require('../assets/music/Numb.mp3'),
+    duration: 186,
+  };
+  await TrackPlayer.add(track);
+}
+
+const togglePlayback = async playbackState => {
+  const currentTrack = await TrackPlayer.getCurrentTrack();
+  console.log('***Play Button Pressed***');
+  if (currentTrack != null) {
+    if (playbackState == State.Paused) {
+      await TrackPlayer.play();
+    } else {
+      await TrackPlayer.pause();
+    }
+  }
+};
+
 const MusicPlayer = () => {
+  const playbackState = usePlaybackState();
+  useEffect(() => {
+    setupTrack();
+  });
   const renderSongs = (index, item) => {
     return (
       <View
@@ -73,8 +113,19 @@ const MusicPlayer = () => {
               style={{marginTop: 20}}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
-            <Ionicons name="ios-pause-circle" size={75} color="black" />
+          <TouchableOpacity
+            onPress={() => {
+              togglePlayback(playbackState);
+            }}>
+            <Ionicons
+              name={
+                playbackState === State.Playing
+                  ? 'ios-pause-circle'
+                  : 'ios-play-circle'
+              }
+              size={75}
+              color="black"
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {}}>
             <Ionicons
