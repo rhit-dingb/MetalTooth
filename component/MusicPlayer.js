@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: 350,
     height: 40,
-    marginTop: 25,
+    marginTop: 5,
   },
   title: {
     fontSize: 18,
@@ -172,12 +172,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '60%',
     justifyContent: 'space-between',
-    marginTop: 15,
+    marginTop: 5,
   },
   artworkWrapper: {
     width: 300,
     height: 340,
-    marginBottom: 25,
+    marginBottom: 5,
 
     shadowColor: '#44535f',
     shadowOffset: {
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   artworkImg: {
     width: '100%',
     height: '100%',
-    borderRadius: 15,
+    borderRadius: 5,
   },
   mainContainer: {
     flex: 1,
