@@ -64,8 +64,11 @@ const sendMusicStatus = (progress, playbackState) => {
   } else {
     status = 'Stop';
   }
-  if (socketList[0] != undefined)
-    socketList[0].write(status + ' ' + progress.position);
+  if (socketList[0] != undefined) {
+    for (let i = 0; i < socketList.length; i++) {
+      socketList[i].write(status + ' ' + progress.position);
+    }
+  }
 };
 
 var hostIP = '';
@@ -73,8 +76,8 @@ var localIP = '';
 //setupTrack();
 
 //------TCP SOCKET
-const server = new TcpSocket.Server();
-const client = new TcpSocket.Socket();
+// var server = new TcpSocket.Server();
+// var client = new TcpSocket.Socket();
 const socketList = [];
 
 // const options = {
@@ -86,59 +89,6 @@ const socketList = [];
 const MusicPlayer = () => {
   const playbackState = usePlaybackState();
   const progress = useProgress();
-
-  server.on('connection', socket => {
-    console.log(
-      'Client connected to server on ' + JSON.stringify(socket.address()),
-    );
-    socketList.push(socket);
-
-    socket.on('data', data => {
-      console.log(
-        'Server client received: ' +
-          (data.length < 500 ? data : data.length + ' bytes'),
-      );
-    });
-
-    socket.on('error', error => {
-      console.log('Server client error ' + error);
-    });
-
-    socket.on('close', error => {
-      console.log('Server client closed ' + (error ? error : ''));
-    });
-  });
-
-  server.on('error', error => {
-    console.log('Server error ' + error);
-  });
-
-  server.on('close', () => {
-    console.log('Server closed');
-  });
-
-  client.on('connect', () => {
-    console.log('Opened client on ' + JSON.stringify(client.address()));
-  });
-
-  client.on('drain', () => {
-    console.log('Client drained');
-  });
-
-  client.on('data', data => {
-    console.log(
-      'Client received: ' + (data.length < 500 ? data : data.length + ' bytes'),
-      updateMusicStatus(data),
-    );
-  });
-
-  client.on('error', error => {
-    console.log('Client error ' + error);
-  });
-
-  client.on('close', error => {
-    console.log('Client closed ' + (error ? error : ''));
-  });
 
   useEffect(() => {
     setupTrack();
@@ -173,22 +123,31 @@ const MusicPlayer = () => {
 
   const updateMusicStatus = async data => {
     const playStatusEvent = data.toString().substring(0, 4);
-    const progressCheckEvent = Number(data.toString().substring(5));
-    if (playbackState === State.Paused) {
-      if (playStatusEvent === 'Play') {
-        await TrackPlayer.play();
-        return;
-      }
+    console.log('playStatusEvent got:   ' + playStatusEvent);
+    const progressCheckEvent = Number(data.toString().substring(5, 10));
+    //if (playbackState == State.Paused) {
+    if (playStatusEvent == 'Play') {
+      console.log('I need to start playing *****');
+      await TrackPlayer.play();
+      // if (playbackState == State.Playing)
+      //   console.log(
+      //     '*********************************************************************************',
+      //   );
+      //return;
     }
-    if (playbackState === State.Playing) {
-      if (playStatusEvent === 'Stop') {
-        await TrackPlayer.pause();
-        return;
-      }
+    //}
+    //if (playbackState == State.Playing) {
+    if (playStatusEvent == 'Stop') {
+      console.log('I need to STOP playing *****');
+      await TrackPlayer.pause();
+      //return;
     }
+    //}
+    //console.log('progress: ' + progressCheckEvent);
     if (Math.abs(progressCheckEvent - progress.position) > 0.05) {
       await TrackPlayer.seekTo(progressCheckEvent);
     }
+    return;
   };
 
   const controlMusicDebug = () => {};
@@ -196,7 +155,35 @@ const MusicPlayer = () => {
     console.log('host button pressed');
     //console.log('host IP from TextBox is: ' + hostIP);
     //console.log(options.host);
-    server.listen(
+    // server.listen(
+    //   {
+    //     port: 12345,
+    //     host: localIP,
+    //     reuseAddress: true,
+    //   },
+    //   () => {
+    //     console.log('server opened on ' + JSON.stringify(server.address()));
+    //   },
+    // );
+    //server
+    const server = TcpSocket.createServer(function (socket) {
+      console.log(
+        'Client connected to server on ' + JSON.stringify(socket.address()),
+      );
+      socketList.push(socket);
+
+      socket.on('data', data => {
+        console.log('Server client received: ' + data);
+      });
+
+      socket.on('error', error => {
+        console.log('Server client error ' + error);
+      });
+
+      socket.on('close', error => {
+        console.log('Server client closed ' + (error ? error : ''));
+      });
+    }).listen(
       {
         port: 12345,
         host: localIP,
@@ -206,11 +193,31 @@ const MusicPlayer = () => {
         console.log('server opened on ' + JSON.stringify(server.address()));
       },
     );
+
+    server.on('error', error => {
+      console.log('An error ocurred with the server', error);
+    });
+
+    server.on('close', () => {
+      console.log('Server closed connection');
+    });
   };
 
   const controlMusicJoin = () => {
     console.log('join button pressed');
-    client.connect(
+    // client.connect(
+    //   {
+    //     port: 12345,
+    //     host: hostIP,
+    //     localAddress: localIP,
+    //     reuseAddress: true,
+    //   },
+    //   () => {
+    //     console.log('client on ' + JSON.stringify(client.address()));
+    //   },
+    // );
+    //client
+    const client = TcpSocket.createConnection(
       {
         port: 12345,
         host: hostIP,
@@ -218,9 +225,30 @@ const MusicPlayer = () => {
         reuseAddress: true,
       },
       () => {
-        console.log('client on ' + JSON.stringify(client.address()));
+        // Write on the socket
+        console.log('Opened client on ' + JSON.stringify(client.address()));
       },
     );
+
+    client.on('drain', () => {
+      console.log('Client drained');
+    });
+
+    client.on('data', data => {
+      console.log(
+        'Client received: ' +
+          (data.length < 500 ? data : data.length + ' bytes'),
+        updateMusicStatus(data),
+      );
+    });
+
+    client.on('error', error => {
+      console.log('Client error ' + error);
+    });
+
+    client.on('close', error => {
+      console.log('Client closed ' + (error ? error : ''));
+    });
   };
 
   return (
