@@ -40,16 +40,16 @@ async function setupTrack() {
     duration: 186,
   };
   await TrackPlayer.add(track);
-  console.log(
-    '!!!!!!!TrackPlayer is good to go!!!!!!!' + TrackPlayer.getCurrentTrack(),
-  );
+  // console.log(
+  //   '!!!!!!!TrackPlayer is good to go!!!!!!!' + TrackPlayer.getCurrentTrack(),
+  // );
 }
 
 const togglePlayback = async playbackState => {
   const currentTrack = await TrackPlayer.getCurrentTrack();
   console.log('***Play Button Pressed***');
   if (currentTrack != null) {
-    if (playbackState == State.Paused) {
+    if (playbackState === State.Paused) {
       await TrackPlayer.play();
     } else {
       await TrackPlayer.pause();
@@ -59,7 +59,7 @@ const togglePlayback = async playbackState => {
 const sendMusicStatus = (progress, playbackState) => {
   //console.log('sending music status');
   var status = '';
-  if (playbackState == State.Paused) {
+  if (playbackState === State.Paused) {
     status = 'Play';
   } else {
     status = 'Stop';
@@ -77,59 +77,6 @@ const server = new TcpSocket.Server();
 const client = new TcpSocket.Socket();
 const socketList = [];
 
-server.on('connection', socket => {
-  console.log(
-    'Client connected to server on ' + JSON.stringify(socket.address()),
-  );
-  socketList.push(socket);
-
-  socket.on('data', data => {
-    console.log(
-      'Server client received: ' +
-        (data.length < 500 ? data : data.length + ' bytes'),
-    );
-  });
-
-  socket.on('error', error => {
-    console.log('Server client error ' + error);
-  });
-
-  socket.on('close', error => {
-    console.log('Server client closed ' + (error ? error : ''));
-  });
-});
-
-server.on('error', error => {
-  console.log('Server error ' + error);
-});
-
-server.on('close', () => {
-  console.log('Server closed');
-});
-
-client.on('connect', () => {
-  console.log('Opened client on ' + JSON.stringify(client.address()));
-});
-
-client.on('drain', () => {
-  console.log('Client drained');
-});
-
-client.on('data', data => {
-  console.log(
-    'Client received: ' + (data.length < 500 ? data : data.length + ' bytes'),
-    updateMusicStatus(data),
-  );
-});
-
-client.on('error', error => {
-  console.log('Client error ' + error);
-});
-
-client.on('close', error => {
-  console.log('Client closed ' + (error ? error : ''));
-});
-
 // const options = {
 //   port: 12345,
 //   host: 'ipAddress',
@@ -139,6 +86,60 @@ client.on('close', error => {
 const MusicPlayer = () => {
   const playbackState = usePlaybackState();
   const progress = useProgress();
+
+  server.on('connection', socket => {
+    console.log(
+      'Client connected to server on ' + JSON.stringify(socket.address()),
+    );
+    socketList.push(socket);
+
+    socket.on('data', data => {
+      console.log(
+        'Server client received: ' +
+          (data.length < 500 ? data : data.length + ' bytes'),
+      );
+    });
+
+    socket.on('error', error => {
+      console.log('Server client error ' + error);
+    });
+
+    socket.on('close', error => {
+      console.log('Server client closed ' + (error ? error : ''));
+    });
+  });
+
+  server.on('error', error => {
+    console.log('Server error ' + error);
+  });
+
+  server.on('close', () => {
+    console.log('Server closed');
+  });
+
+  client.on('connect', () => {
+    console.log('Opened client on ' + JSON.stringify(client.address()));
+  });
+
+  client.on('drain', () => {
+    console.log('Client drained');
+  });
+
+  client.on('data', data => {
+    console.log(
+      'Client received: ' + (data.length < 500 ? data : data.length + ' bytes'),
+      updateMusicStatus(data),
+    );
+  });
+
+  client.on('error', error => {
+    console.log('Client error ' + error);
+  });
+
+  client.on('close', error => {
+    console.log('Client closed ' + (error ? error : ''));
+  });
+
   useEffect(() => {
     setupTrack();
   });
@@ -175,17 +176,17 @@ const MusicPlayer = () => {
     const progressCheckEvent = Number(data.toString().substring(5));
     if (playbackState === State.Paused) {
       if (playStatusEvent === 'Play') {
-        playbackState = State.Playing;
+        await TrackPlayer.play();
         return;
       }
     }
     if (playbackState === State.Playing) {
       if (playStatusEvent === 'Stop') {
-        playbackState = State.Paused;
+        await TrackPlayer.pause();
         return;
       }
     }
-    if (Math.abs(progressCheckEvent - progress.position) < 0.05) {
+    if (Math.abs(progressCheckEvent - progress.position) > 0.05) {
       await TrackPlayer.seekTo(progressCheckEvent);
     }
   };
