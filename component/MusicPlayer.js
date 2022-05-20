@@ -27,6 +27,22 @@ import TrackPlayer, {
 import {clearWarnings} from 'react-native/Libraries/LogBox/Data/LogBoxData';
 
 const {width, height} = Dimensions.get('window');
+var hostIP = '';
+var localIP = '';
+//setupTrack();
+var syncState = '';
+var syncPos = 0;
+
+//------TCP SOCKET
+// var server = new TcpSocket.Server();
+// var client = new TcpSocket.Socket();
+const socketList = [];
+
+// const options = {
+//   port: 12345,
+//   host: 'ipAddress',
+//   reuseAddress: true,
+// };
 
 async function setupTrack() {
   await TrackPlayer.setupPlayer();
@@ -61,32 +77,19 @@ const sendMusicStatus = (progress, playbackState) => {
   var status = '';
   if (playbackState === State.Paused) {
     status = 'Play';
+    syncState = 'Play';
   } else {
     status = 'Stop';
+    syncState = 'Stop';
   }
-  if (socketList[0] != undefined) {
-    for (let i = 0; i < socketList.length; i++) {
+  for (let i = 0; i < socketList.length; i++) {
+    if (socketList[i] != undefined)
       socketList[i].write(status + ' ' + progress.position);
-    }
   }
 };
 
-var hostIP = '';
-var localIP = '';
-//setupTrack();
-
-//------TCP SOCKET
-// var server = new TcpSocket.Server();
-// var client = new TcpSocket.Socket();
-const socketList = [];
-
-// const options = {
-//   port: 12345,
-//   host: 'ipAddress',
-//   reuseAddress: true,
-// };
-
 const MusicPlayer = () => {
+  //console.log('initialize music player');
   const playbackState = usePlaybackState();
   const progress = useProgress();
 
@@ -201,6 +204,17 @@ const MusicPlayer = () => {
     server.on('close', () => {
       console.log('Server closed connection');
     });
+
+    //console.log('progress: ' + progress.duration);
+    //setInterval(func, 1000);
+  };
+
+  const changeFunc = () => {
+    var status = syncState;
+    for (let i = 0; i < socketList.length; i++) {
+      if (socketList[i] != undefined)
+        socketList[i].write(status + ' ' + syncPos);
+    }
   };
 
   const controlMusicJoin = () => {
@@ -305,7 +319,12 @@ const MusicPlayer = () => {
           thumbTintColor="black"
           minimumTrackTintColor="black"
           onSlidingComplete={async value => {
+            changeFunc();
             await TrackPlayer.seekTo(value);
+          }}
+          onValueChange={value => {
+            syncPos = value;
+            //console.log('sync: ' + syncPos);
           }}
         />
       </View>
