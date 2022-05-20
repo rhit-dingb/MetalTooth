@@ -208,96 +208,10 @@ const App: () => Node = () => {
       metalSound.release();
     };
   }, []);
-  const playPause = () => {
-    metalSound.play(success => {
-      if (success) {
-        console.log('successfully finished playing');
-      } else {
-        console.log('playback failed due to audio decoding errors');
-      }
-    });
-  };
-  const controlMusicPlay = () => {
-    console.log('play button pressed');
-    MusicControl.updatePlayback({
-      state: MusicControl.STATE_PLAYING,
-      elapsedTime: 135,
-    });
-  };
-  const controlMusicPause = () => {
-    console.log('pause button pressed');
-    MusicControl.updatePlayback({
-      state: MusicControl.STATE_PAUSED,
-      elapsedTime: 135,
-    });
-  };
-
-  const controlMusicDebug = () => {};
-  const controlMusicHost = () => {
-    console.log('host button pressed');
-    //console.log('host IP from TextBox is: ' + hostIP);
-    //console.log(options.host);
-    server.listen(
-      {
-        port: 12345,
-        host: localIP,
-        reuseAddress: true,
-      },
-      () => {
-        console.log('server opened on ' + JSON.stringify(server.address()));
-      },
-    );
-  };
-
-  const controlMusicJoin = () => {
-    console.log('join button pressed');
-    client.connect(
-      {
-        port: 12345,
-        host: hostIP,
-        localAddress: localIP,
-        reuseAddress: true,
-      },
-      () => {
-        console.log('client on ' + JSON.stringify(client.address()));
-      },
-    );
-  };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* <Text style={styles.heading1}>MetalTooth</Text> */}
-      <View style={styles.tcpContainer1}>
-        {/* <Button
-          style={styles.playMusicButton}
-          title="SwithTo100Sec-DEBUG"
-          onPress={controlMusicDebug}
-        /> */}
-        <Button
-          style={styles.playMusicButton}
-          title="Host Party"
-          onPress={controlMusicHost}
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={text => (localIP = text)}
-          placeholder="Local IP"
-          keyboardType="numeric"
-        />
-      </View>
-      <View style={styles.tcpContainer}>
-        <TextInput
-          style={styles.input}
-          onChangeText={text => (hostIP = text)}
-          placeholder="Host IP"
-          keyboardType="numeric"
-        />
-        <Button
-          style={styles.playMusicButton}
-          title="Join Party"
-          onPress={controlMusicJoin}
-        />
-      </View>
       <MusicPlayer />
     </SafeAreaView>
   );

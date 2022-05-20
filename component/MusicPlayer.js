@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  TextInput,
+  Button,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import TcpSocket from 'react-native-tcp-socket';
 import songs from '../model/data';
 import TrackPlayer, {
   Capability,
@@ -37,22 +40,106 @@ async function setupTrack() {
     duration: 186,
   };
   await TrackPlayer.add(track);
+  // console.log(
+  //   '!!!!!!!TrackPlayer is good to go!!!!!!!' + TrackPlayer.getCurrentTrack(),
+  // );
 }
 
 const togglePlayback = async playbackState => {
   const currentTrack = await TrackPlayer.getCurrentTrack();
   console.log('***Play Button Pressed***');
   if (currentTrack != null) {
-    if (playbackState == State.Paused) {
+    if (playbackState === State.Paused) {
       await TrackPlayer.play();
     } else {
       await TrackPlayer.pause();
     }
   }
 };
+const sendMusicStatus = (progress, playbackState) => {
+  //console.log('sending music status');
+  var status = '';
+  if (playbackState === State.Paused) {
+    status = 'Play';
+  } else {
+    status = 'Stop';
+  }
+  if (socketList[0] != undefined)
+    socketList[0].write(status + ' ' + progress.position);
+};
+
+var hostIP = '';
+var localIP = '';
+//setupTrack();
+
+//------TCP SOCKET
+const server = new TcpSocket.Server();
+const client = new TcpSocket.Socket();
+const socketList = [];
+
+// const options = {
+//   port: 12345,
+//   host: 'ipAddress',
+//   reuseAddress: true,
+// };
 
 const MusicPlayer = () => {
   const playbackState = usePlaybackState();
+  const progress = useProgress();
+
+  server.on('connection', socket => {
+    console.log(
+      'Client connected to server on ' + JSON.stringify(socket.address()),
+    );
+    socketList.push(socket);
+
+    socket.on('data', data => {
+      console.log(
+        'Server client received: ' +
+          (data.length < 500 ? data : data.length + ' bytes'),
+      );
+    });
+
+    socket.on('error', error => {
+      console.log('Server client error ' + error);
+    });
+
+    socket.on('close', error => {
+      console.log('Server client closed ' + (error ? error : ''));
+    });
+  });
+
+  server.on('error', error => {
+    console.log('Server error ' + error);
+  });
+
+  server.on('close', () => {
+    console.log('Server closed');
+  });
+
+  client.on('connect', () => {
+    console.log('Opened client on ' + JSON.stringify(client.address()));
+  });
+
+  client.on('drain', () => {
+    console.log('Client drained');
+  });
+
+  client.on('data', data => {
+    console.log(
+      'Client received: ' + (data.length < 500 ? data : data.length + ' bytes'),
+      updateMusicStatus(data),
+    );
+  });
+
+  client.on('error', error => {
+    console.log('Client error ' + error);
+  });
+
+  client.on('close', error => {
+    console.log('Client closed ' + (error ? error : ''));
+  });
+
   useEffect(() => {
     setupTrack();
   });
@@ -74,8 +161,102 @@ const MusicPlayer = () => {
     );
   };
 
+  const playPause = () => {
+    metalSound.play(success => {
+      if (success) {
+        console.log('successfully finished playing');
+      } else {
+        console.log('playback failed due to audio decoding errors');
+      }
+    });
+  };
+
+  const updateMusicStatus = async data => {
+    const playStatusEvent = data.toString().substring(0, 4);
+    const progressCheckEvent = Number(data.toString().substring(5));
+    if (playbackState === State.Paused) {
+      if (playStatusEvent === 'Play') {
+        await TrackPlayer.play();
+        return;
+      }
+    }
+    if (playbackState === State.Playing) {
+      if (playStatusEvent === 'Stop') {
+        await TrackPlayer.pause();
+        return;
+      }
+    }
+    if (Math.abs(progressCheckEvent - progress.position) > 0.05) {
+      await TrackPlayer.seekTo(progressCheckEvent);
+    }
+  };
+
+  const controlMusicDebug = () => {};
+  const controlMusicHost = () => {
+    console.log('host button pressed');
+    //console.log('host IP from TextBox is: ' + hostIP);
+    //console.log(options.host);
+    server.listen(
+      {
+        port: 12345,
+        host: localIP,
+        reuseAddress: true,
+      },
+      () => {
+        console.log('server opened on ' + JSON.stringify(server.address()));
+      },
+    );
+  };
+
+  const controlMusicJoin = () => {
+    console.log('join button pressed');
+    client.connect(
+      {
+        port: 12345,
+        host: hostIP,
+        localAddress: localIP,
+        reuseAddress: true,
+      },
+      () => {
+        console.log('client on ' + JSON.stringify(client.address()));
+      },
+    );
+  };
+
   return (
     <View style={styles.mainContainer}>
+      <View style={styles.tcpContainer1}>
+        {/* <Button
+          style={styles.playMusicButton}
+          title="SwithTo100Sec-DEBUG"
+          onPress={controlMusicDebug}
+        /> */}
+        <Button
+          style={styles.playMusicButton}
+          title="Host Party"
+          onPress={controlMusicHost}
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={text => (localIP = text)}
+          placeholder="Local IP"
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={styles.tcpContainer}>
+        <TextInput
+          style={styles.input}
+          onChangeText={text => (hostIP = text)}
+          placeholder="Host IP"
+          keyboardType="numeric"
+        />
+        <Button
+          style={styles.playMusicButton}
+          title="Join Party"
+          onPress={controlMusicJoin}
+        />
+      </View>
+
       <FlatList
         data={songs}
         renderItem={renderSongs}
@@ -90,17 +271,25 @@ const MusicPlayer = () => {
       <View>
         <Slider
           style={styles.progressContainer}
-          value={10}
+          value={progress.position}
           minimumValue={0}
-          maximumValue={100}
+          maximumValue={progress.duration}
           thumbTintColor="black"
           minimumTrackTintColor="black"
-          onSlidingComplete={() => {}}
+          onSlidingComplete={async value => {
+            await TrackPlayer.seekTo(value);
+          }}
         />
       </View>
       <View style={styles.progressLabelContainer}>
-        <Text style={styles.progressLabelTxt}>0:00</Text>
-        <Text style={styles.progressLabelTxt}>3:06</Text>
+        <Text style={styles.progressLabelTxt}>
+          {new Date(progress.position * 1000).toISOString().substr(14, 5)}
+        </Text>
+        <Text style={styles.progressLabelTxt}>
+          {new Date((progress.duration - progress.position) * 1000)
+            .toISOString()
+            .substr(14, 5)}
+        </Text>
       </View>
 
       <View style={styles.musicControlls}>
@@ -115,6 +304,7 @@ const MusicPlayer = () => {
         <TouchableOpacity
           onPress={() => {
             togglePlayback(playbackState);
+            sendMusicStatus(progress, playbackState);
           }}>
           <Ionicons
             name={
@@ -204,5 +394,25 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  tcpContainer1: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 45,
+  },
+  tcpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  input: {
+    fontSize: 20,
+  },
+  playMusicButton: {
+    title: 'bold', //TODO: this is NOT WORKING, FIX
   },
 });
